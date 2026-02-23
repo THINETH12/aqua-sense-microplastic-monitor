@@ -1,34 +1,28 @@
-#include <WiFi.h>
-#include <WebServer.h>
+#include <SPI.h>
+#include <SD.h>
 
-const char* ssid = "YOUR_WIFI_NAME";
-const char* password = "YOUR_WIFI_PASSWORD";
-
-WebServer server(80);
-
-void handleRoot() {
-  server.send(200, "text/plain", "ESP32 Web Server Working!");
-}
+#define SD_CS 5
 
 void setup() {
   Serial.begin(115200);
 
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting");
+  SPI.begin(18, 19, 23, 5);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  if (!SD.begin(SD_CS)) {
+    Serial.println("SD Card Failed!");
+    return;
   }
 
-  Serial.println();
-  Serial.print("Connected! IP: ");
-  Serial.println(WiFi.localIP());
+  Serial.println("SD Card OK!");
 
-  server.on("/", handleRoot);
-  server.begin();
+  File file = SD.open("/test.txt", FILE_WRITE);
+
+  if (file) {
+    file.println("ESP32 SD Test");
+    file.close();
+    Serial.println("File Written!");
+  }
 }
 
 void loop() {
-  server.handleClient();
 }
