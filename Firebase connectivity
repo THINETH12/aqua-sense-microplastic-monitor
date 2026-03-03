@@ -1,0 +1,39 @@
+#include <WiFi.h>
+#include <Firebase_ESP_Client.h>
+
+#define WIFI_SSID "Dialog 4G"
+#define WIFI_PASSWORD "88897733"
+
+#define API_KEY "AIzaSyBCPpi-yN_zW9QVqxC5phgKFgTu-Ty_8zQ" // firebase api
+#define DATABASE_URL "https://micro-plastic-detection-e5554-default-rtdb.firebaseio.com/"
+
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+float temperature = 25.0;
+float ph = 7.0;
+float wqi = 85.0;
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+
+  Firebase.signUp(&config, &auth, "", "");
+  Firebase.begin(&config, &auth);
+}
+
+void loop() {
+  if (Firebase.ready()) {
+    Firebase.RTDB.setFloat(&fbdo, "/water/temperature", temperature);
+    Firebase.RTDB.setFloat(&fbdo, "/water/ph", ph);
+    Firebase.RTDB.setFloat(&fbdo, "/water/wqi", wqi);
+    Serial.println("Uploaded to Firebase");
+  }
+  delay(5000);
+}
