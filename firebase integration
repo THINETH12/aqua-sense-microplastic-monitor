@@ -1,0 +1,45 @@
+#ifndef FIREBASE_MODULE_H
+#define FIREBASE_MODULE_H
+
+#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+
+// FIREBASE
+const char* firebaseHost =
+"https://micro-plastic-detection-e5554-default-rtdb.firebaseio.com/"
+
+const char* firebaseApiKey =
+"AIzaSyBCPpi-yN_zW9QVqxC5phgKFgTu-Ty_8zQ";
+
+
+void uploadToFirebase(){
+
+if(WiFi.status()!=WL_CONNECTED)
+return;
+
+WiFiClientSecure client;
+client.setInsecure();
+
+HTTPClient https;
+
+String url = String(firebaseHost) + "/live.json";
+
+String json = "{";
+
+json += "\"temperature\":" + String(temperatureC) + ",";
+json += "\"ph\":" + String(phValue) + ",";
+json += "\"ec\":" + String(ecValue) + ",";
+json += "\"turbidity\":" + String(turbidityNTU);
+
+json += "}";
+
+https.begin(client,url);
+https.addHeader("Content-Type","application/json");
+
+https.PUT(json);
+
+https.end();
+
+}
+
+#endif
